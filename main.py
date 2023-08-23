@@ -13,6 +13,12 @@ def main():
     ## Create a lookup table for characters
     stoi, itos = create_lookup_table(dataset)
 
+    ## Create the dataset
+    create_dataset()
+
+    ## Initialize our neural network
+    init_network()
+
     ## Train the model
     train_model()
 
@@ -20,8 +26,10 @@ def main():
     generate_names(num_names_to_generate)
 
 def read_user_input():
-    print("Reading user input...")
     user_input = input("How many names do you wish to generate?\n")
+
+    ## TODO 
+    ## Need to do some input validation as we only want to continue if the user inputs integers.
     
     return user_input
 
@@ -40,9 +48,19 @@ def create_lookup_table(dataset):
 
     return stoi, itos
 
+## TODO
+def create_dataset():
+    print("Creating the dataset...")
+
+## TODO
+def init_network():
+    print("Initializing neural network...")
+
+## TODO
 def train_model():
     print("Training model...")
 
+## TODO
 def generate_names(num_of_names_to_generate):
     print(f"generating names {num_of_names_to_generate} names...")
 
