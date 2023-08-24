@@ -29,6 +29,7 @@ def read_user_input():
     is_valid_input = False
     user_input = 0
 
+    ## Validate that the value inputted by the user is valid
     while not is_valid_input:
         user_input = input("How many names do you wish to generate?\n")
 
