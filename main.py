@@ -26,11 +26,17 @@ def main():
     generate_names(num_names_to_generate)
 
 def read_user_input():
-    user_input = input("How many names do you wish to generate?\n")
+    is_valid_input = False
+    user_input = 0
 
-    ## TODO 
-    ## Need to do some input validation as we only want to continue if the user inputs integers.
-    
+    while not is_valid_input:
+        user_input = input("How many names do you wish to generate?\n")
+
+        if not user_input.isdigit():
+            print(f"{user_input} is not a valid number")
+        else:
+            is_valid_input = True
+        
     return user_input
 
 def read_training_dataset():
