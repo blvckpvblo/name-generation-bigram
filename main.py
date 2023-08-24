@@ -8,13 +8,13 @@ def main():
     num_names_to_generate = read_user_input()
 
     ## Read dataset for training names.txt
-    dataset = read_training_dataset()
+    dataset = read_raw_data()
 
     ## Create a lookup table for characters
     stoi, itos = create_lookup_table(dataset)
 
     ## Create the dataset
-    create_dataset()
+    create_network_dataset(dataset, stoi)
 
     ## Initialize our neural network
     init_network()
@@ -40,7 +40,7 @@ def read_user_input():
         
     return user_input
 
-def read_training_dataset():
+def read_raw_data():
     print("Reading training dataset...")
     words = open('names.txt', 'r').read().splitlines()
 
@@ -56,8 +56,22 @@ def create_lookup_table(dataset):
     return stoi, itos
 
 ## TODO
-def create_dataset():
+def create_network_dataset(dataset, stoi):
     print("Creating the dataset...")
+    xs, ys = [], []
+
+    for data in dataset:
+        chs = ['.'] + list(data) + ['.']
+
+        for ch1, ch2 in zip(chs, chs[1:]):
+            ix1 = stoi[ch1]
+            ix2 = stoi[ch2]
+            xs.append(ix1)
+            ys.append(ix2)
+
+    xs = torch.tensor(xs)
+    ys = torch.tensor(ys)
+    num = xs.nelement()
 
 ## TODO
 def init_network():
