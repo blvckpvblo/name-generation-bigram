@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 __author__ =  "Momar T. Cisse"
 
+## Imports
+import torch
+import torch.nn.functional as F
+
+## Global vars
+seed = 2147483647
+
 def main():
     """Main entry"""
     ## Read the user input
@@ -14,16 +21,16 @@ def main():
     stoi, itos = create_lookup_table(dataset)
 
     ## Create the dataset
-    create_network_dataset(dataset, stoi)
+    xs, ys, num = create_network_dataset(dataset, stoi)
 
     ## Initialize our neural network
-    init_network()
+    g, W = init_network()
 
     ## Train the model
-    train_model()
+    W = train_model(xs, ys, num, W)
 
     ## Generate the names using our model
-    generate_names(num_names_to_generate)
+    generate_names(num_names_to_generate, g, W, itos)
 
 def read_user_input():
     is_valid_input = False
@@ -38,7 +45,7 @@ def read_user_input():
         else:
             is_valid_input = True
         
-    return user_input
+    return int(user_input)
 
 def read_raw_data():
     print("Reading training dataset...")
@@ -55,7 +62,6 @@ def create_lookup_table(dataset):
 
     return stoi, itos
 
-## TODO
 def create_network_dataset(dataset, stoi):
     print("Creating the dataset...")
     xs, ys = [], []
@@ -72,18 +78,59 @@ def create_network_dataset(dataset, stoi):
     xs = torch.tensor(xs)
     ys = torch.tensor(ys)
     num = xs.nelement()
+    print('number of examples: ', num)
 
-## TODO
+    return xs, ys, num
+
 def init_network():
     print("Initializing neural network...")
+    g = torch.Generator().manual_seed(seed)
+    W = torch.randn((27, 27), generator=g, requires_grad=True)
+
+    return g, W
 
 ## TODO
-def train_model():
+def train_model(xs, ys, num, W):
     print("Training model...")
+    print("Starting gradient descent")
+    # Gradient dscent
+    for k in range(100):
+        # forward pass
+        xenc = F.one_hot(xs, num_classes=27).float()
+        logits = xenc @ W
+        counts = logits.exp()
+        probs = counts / counts.sum(1, keepdims=True)
+        loss = -probs[torch.arange(num), ys].log().mean()
+        # print(loss.item())
+
+        # Backward pass
+        W.grad = None
+        loss.backward()
+
+        # Update
+        W.data += -50 * W.grad # type: ignore
+
+        return W
 
 ## TODO
-def generate_names(num_of_names_to_generate):
+def generate_names(num_of_names_to_generate, g, W, itos):
     print(f"generating names {num_of_names_to_generate} names...")
+    for _ in range(num_of_names_to_generate):
+        out = []
+        ix = 0
+
+        while True:
+            xenc = F.one_hot(torch.tensor([ix]), num_classes=27).float()
+            logits = xenc @ W
+            counts = logits.exp()
+            p = counts / counts.sum(1, keepdims=True)
+
+            ix = torch.multinomial(p, num_samples=1, replacement=True, generator=g).item()
+            out.append(itos[ix])
+            if ix == 0:
+                break
+
+        print(''.join(out))
 
 if __name__ == "__main__":
     """This is executed when run from the command line"""
