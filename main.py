@@ -24,13 +24,13 @@ def main():
     xs, ys, num = create_network_dataset(dataset, stoi)
 
     ## Initialize our neural network
-    g, W = init_network()
+    W = init_network()
 
     ## Train the model
     W = train_model(xs, ys, num, W)
 
     ## Generate the names using our model
-    generate_names(num_names_to_generate, g, W, itos)
+    generate_names(num_names_to_generate, W, itos)
 
 def read_user_input():
     is_valid_input = False
@@ -85,16 +85,13 @@ def create_network_dataset(dataset, stoi):
 def init_network():
     print("Initializing neural network...")
     g = torch.Generator().manual_seed(seed)
-    W = torch.randn((27, 27), generator=g, requires_grad=True)
+    return torch.randn((27, 27), generator=g, requires_grad=True)
 
-    return g, W
-
-## TODO
 def train_model(xs, ys, num, W):
     print("Training model...")
     print("Starting gradient descent")
-    # Gradient dscent
-    for k in range(100):
+    # Gradient descent
+    for _ in range(100):
         # forward pass
         xenc = F.one_hot(xs, num_classes=27).float()
         logits = xenc @ W
@@ -109,12 +106,13 @@ def train_model(xs, ys, num, W):
 
         # Update
         W.data += -50 * W.grad # type: ignore
+    
+    return W
 
-        return W
-
-## TODO
-def generate_names(num_of_names_to_generate, g, W, itos):
+def generate_names(num_of_names_to_generate, W, itos):
     print(f"generating names {num_of_names_to_generate} names...")
+    g = torch.Generator().manual_seed(seed)
+
     for _ in range(num_of_names_to_generate):
         out = []
         ix = 0
